@@ -12,9 +12,22 @@ import (
 
 func RegisterUser(c *gin.Context) {
 	validate := validator.New()
-	var user models.Login
+	reqRegis := models.RequestLogin{}
+	c.BindJSON(&reqRegis)
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	Login := models.Login{
+		Username: reqRegis.LoginUsername,
+		Email:    reqRegis.LoginEmail,
+		Password: reqRegis.LoginPassword,
+		Role:     reqRegis.LoginRole,
+		User: models.User{
+			Name:         reqRegis.UserName,
+			Address:      reqRegis.UserAddress,
+			Phone_number: reqRegis.UserPhoneNumber,
+		},
+	}
+
+	if err := c.ShouldBindJSON(&Login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Bad request",
 			"error":   err.Error(),
@@ -24,7 +37,7 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	if errs := validate.Struct(&user); errs != nil {
+	if errs := validate.Struct(&Login); errs != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Bad request",
 		})
@@ -34,7 +47,7 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	// check email
-	checkEmail := config.DB.Where("email = ?", user.Email).First(&user)
+	checkEmail := config.DB.Where("email = ?", Login.Email).First(&Login)
 	if checkEmail.Error == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Email Already Exists",
@@ -45,7 +58,7 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	//hash user password
-	err := user.HashPassword(user.Password)
+	err := Login.HashPassword(Login.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Bad request",
@@ -57,7 +70,7 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	// insert user
-	insertUser := config.DB.Create(&user)
+	insertUser := config.DB.Create(&Login)
 	if insertUser.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Bad request",
@@ -70,9 +83,9 @@ func RegisterUser(c *gin.Context) {
 
 	//response register
 	c.JSON(http.StatusCreated, gin.H{
-		"user_id":  user.ID,
-		"email":    user.Email,
-		"username": user.Username,
+		"user_id":  Login.ID,
+		"email":    Login.Email,
+		"username": Login.Username,
 	})
 }
 

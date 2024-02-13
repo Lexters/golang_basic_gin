@@ -12,19 +12,24 @@ import (
 func GetBook(c *gin.Context) {
 	books := []models.Book{}
 
-	config.DB.Find(&books)
+	config.DB.Preload("Author").Find(&books)
 
 	GetBookResponse := []models.GetBookResponse{}
 
 	for _, b := range books {
-		bk := models.GetBookResponse{
+		author := models.AuthorResponse{
+			ID:   b.AuthorID,
+			Name: b.Author.Name,
+		}
+
+		bks := models.GetBookResponse{
 			BookID:    b.ID,
 			Title:     b.Title,
-			Author:    b.Author,
 			Publisher: b.Publisher,
 			Years:     b.Years,
+			Author:    author,
 		}
-		GetBookResponse = append(GetBookResponse, bk)
+		GetBookResponse = append(GetBookResponse, bks)
 	}
 
 	c.JSON(200, gin.H{
@@ -52,9 +57,11 @@ func GetBookByID(c *gin.Context) {
 	bk := models.GetBookResponse{
 		BookID:    book.ID,
 		Title:     book.Title,
-		Author:    book.Author,
 		Publisher: book.Publisher,
 		Years:     book.Years,
+		Author: models.AuthorResponse{
+			Name: book.Author.Name,
+		},
 	}
 
 	c.JSON(http.StatusOK, gin.H{

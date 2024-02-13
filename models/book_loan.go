@@ -7,10 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type UsersBook struct {
+type UserBook struct {
 	gorm.Model
-	UsersID     uint         `json:"users_id"`
-	Users       Users        `gorm:"foreignKey:UsersID;reference:ID"`
+	UserID      uint         `json:"user_id"`
+	User        User         `gorm:"foreignKey:UserID;reference:ID"`
 	BookID      uint         `json:"book_id"`
 	Book        Book         `gorm:"foreignKey:BookID;reference:ID"`
 	Description string       `json:"description"`
@@ -20,14 +20,14 @@ type UsersBook struct {
 type ResponseGetBook_loan struct {
 	Id          uint      `json:"id"`
 	Description string    `json:"description"`
-	UsersName   string    `json:"usersName"`
+	UserName    string    `json:"userName"`
 	BookTitle   string    `json:"bookTitle"`
 	CreatedAt   time.Time `json:"createdAt"`
 	ReturnAt    time.Time `json:"returnAt"`
 }
 
-type ResponseUsersBook struct {
-	UsersID     uint         `json:"users_id"`
+type ResponseUserBook struct {
+	UserID      uint         `json:"user_id"`
 	BookID      uint         `json:"book_id"`
 	Description string       `json:"description"`
 	CreatedAt   time.Time    `json:"createdAt"`
@@ -35,14 +35,14 @@ type ResponseUsersBook struct {
 }
 
 type RequestBook_loan struct {
-	UsersID     uint   `json:"users_id"`
+	UserID      uint   `json:"user_id"`
 	BookID      uint   `json:"book_id"`
 	Description string `json:"description"`
 }
 
 type ResponseBook_loan struct {
 	ID          uint         `json:"id"`
-	UsersID     uint         `json:"users_id"`
+	UserID      uint         `json:"user_id"`
 	BookID      uint         `json:"book_id"`
 	Description string       `json:"description"`
 	CreatedAt   time.Time    `json:"createdAt"`

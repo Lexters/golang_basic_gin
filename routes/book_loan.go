@@ -12,7 +12,7 @@ import (
 )
 
 func GetBookLoan(c *gin.Context) {
-	UsersBook := []models.UsersBook{}
+	UsersBook := []models.UserBook{}
 
 	config.DB.Preload(clause.Associations).Find(&UsersBook)
 
@@ -22,7 +22,7 @@ func GetBookLoan(c *gin.Context) {
 		rgb := models.ResponseGetBook_loan{
 			Id:          ub.ID,
 			Description: ub.Description,
-			UsersName:   ub.Users.Name,
+			UserName:    ub.User.Name,
 			BookTitle:   ub.Book.Title,
 			CreatedAt:   ub.CreatedAt,
 			ReturnAt:    ub.ReturnAt.Time,
@@ -50,8 +50,8 @@ func PostBookLoanByUsersID(c *gin.Context) {
 		return
 	}
 
-	book_loan := models.UsersBook{
-		UsersID:     reqBook_loan.UsersID,
+	book_loan := models.UserBook{
+		UserID:      reqBook_loan.UserID,
 		BookID:      reqBook_loan.BookID,
 		Description: reqBook_loan.Description,
 	}
@@ -69,7 +69,7 @@ func PostBookLoanByUsersID(c *gin.Context) {
 
 	respBook_loan := models.ResponseBook_loan{
 		ID:          book_loan.BookID,
-		UsersID:     book_loan.UsersID,
+		UserID:      book_loan.UserID,
 		BookID:      book_loan.BookID,
 		Description: book_loan.Description,
 		CreatedAt:   book_loan.CreatedAt,
@@ -85,25 +85,27 @@ func GetBookLoanByBookID(c *gin.Context) {
 	id := c.Param("id")
 
 	Books := models.Book{}
-	usBook := []models.ResponseUsersBook{}
+	usBook := []models.ResponseUserBook{}
 
 	config.DB.Preload(clause.Associations).Find(&Books, "id = ?", id)
 
-	for _, book := range Books.Users {
+	for _, book := range Books.User {
 
-		usBook = append(usBook, models.ResponseUsersBook{
-			UsersID:     book.UsersID,
+		usBook = append(usBook, models.ResponseUserBook{
+			UserID:      book.UserID,
 			BookID:      book.BookID,
 			Description: book.Description,
 			CreatedAt:   book.CreatedAt,
 		})
 	}
 
-	respBook := models.ResponseBookUsers{
-		BookTitle:  Books.Title,
-		BookAuthor: Books.Author,
-		BookYears:  Books.Years,
-		UsersBook:  usBook,
+	respBook := models.ResponseBookUser{
+		BookTitle: Books.Title,
+		BookYears: Books.Years,
+		UserBook:  usBook,
+		Author: models.AuthorResponse{
+			Name: Books.Author.Name,
+		},
 	}
 
 	c.JSON(200, gin.H{
@@ -115,7 +117,7 @@ func GetBookLoanByBookID(c *gin.Context) {
 func UpdateBookLoanReturn(c *gin.Context) {
 	id := c.Param("id")
 
-	reqBLR := models.UsersBook{}
+	reqBLR := models.UserBook{}
 
 	data := config.DB.First(&reqBLR, "id = ?", id)
 

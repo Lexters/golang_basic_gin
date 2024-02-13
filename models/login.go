@@ -7,11 +7,29 @@ import (
 
 type Login struct {
 	gorm.Model
-	Name     string `json:"name" validate:"required"`
 	Username string `json:"username" validate:"required"`
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Role     uint32 `json:"role" validate:"required"`
+	User     User
+}
+
+type RequestLogin struct {
+	LoginUsername   string `json:"login_username"`
+	LoginEmail      string `json:"login_email"`
+	LoginPassword   string `json:"login_password"`
+	LoginRole       uint32 `json:"login_role"`
+	UserName        string `json:"user_name"`
+	UserPhoneNumber string `json:"user_phonenumber"`
+	UserAddress     string `json:"user_address"`
+}
+
+type GetLoginResponse struct {
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+	Addresss    string `json:"address"`
+	Email       string `json:"email"`
+	Role        uint32 `json:"role"`
 }
 
 type TokenRequest struct {
