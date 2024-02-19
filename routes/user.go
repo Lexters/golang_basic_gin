@@ -3,6 +3,7 @@ package routes
 import (
 	"golang_project_2024/config"
 	"golang_project_2024/models"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,103 +32,35 @@ func GetUser(c *gin.Context) {
 	})
 }
 
-// func GetUserByID(c *gin.Context) {
-// 	id := c.Param("id")
+func GetUserByID(c *gin.Context) {
+	id := c.Param("id")
 
-// 	users := models.Login{}
+	users := models.Login{}
 
-// 	data := config.DB.Preload("User").First(&users, "id = ?", id)
+	data := config.DB.Preload("User").First(&users, "id = ?", id)
 
-// 	//validate data
-// 	if data.Error != nil {
-// 		log.Printf(data.Error.Error())
-// 		c.JSON(http.StatusNotFound, gin.H{
-// 			"message": "Users not found",
-// 		})
-// 		return
-// 	}
+	//validate data
+	if data.Error != nil {
+		log.Printf(data.Error.Error())
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Users not found",
+		})
+		return
+	}
 
-// 	usr := models.GetLoginResponse{
-// 		Name:        users.User.Name,
-// 		PhoneNumber: users.User.Phone_number,
-// 		Addresss:    users.User.Address,
-// 		Email:       users.Email,
-// 		Role:        users.Role,
-// 	}
+	usr := models.GetLoginResponse{
+		Name:        users.User.Name,
+		PhoneNumber: users.User.Phone_number,
+		Addresss:    users.User.Address,
+		Email:       users.Email,
+		Role:        users.Role,
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"Message": "Success",
-// 		"data":    usr,
-// 	})
-// }
-
-// func GetUser(c *gin.Context) {
-// 	Users := []models.User{}
-// 	config.DB.Preload("Role").Find(&Users)
-
-// 	getUserResponse := []models.GetUserResponse{}
-
-// 	for _, u := range Users {
-// 		Role := models.RoleResponse{
-// 			ID:   u.Role.ID,
-// 			Name: u.Role.Name,
-// 			Code: u.Role.Code,
-// 		}
-
-// 		usrs := models.GetUserResponse{
-// 			ID:           u.ID,
-// 			Name:         u.Name,
-// 			Address:      u.Address,
-// 			Email:        u.Email,
-// 			Phone_number: u.Phone_number,
-// 		}
-
-// 		getUserResponse = append(getUserResponse, usrs)
-// 	}
-
-// 	c.JSON(200, gin.H{
-// 		"Message": "Welcome Users!",
-// 		"data":    getUserResponse,
-// 	})
-// }
-
-// func GetUserByID(c *gin.Context) {
-// 	id := c.Param("id")
-
-// 	users := models.User{}
-
-// 	data := config.DB.Preload("Role").First(&users, "id = ?", id)
-
-// 	if data.Error != nil {
-// 		log.Printf(data.Error.Error())
-// 		c.JSON(http.StatusNotFound, gin.H{
-// 			"message": "Users not found",
-// 		})
-// 		return
-// 	}
-
-// 	role := models.RoleResponse{
-// 		ID:   users.Role.ID,
-// 		Name: users.Role.Name,
-// 		Code: users.Role.Code,
-// 	}
-
-// 	getUsersResponse := models.GetUserResponse{
-// 		ID:           users.ID,
-// 		Name:         users.Name,
-// 		Address:      users.Address,
-// 		Email:        users.Email,
-// 		Phone_number: users.Phone_number,
-// 		RoleID:       users.RoleID,
-// 		Role:         role,
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"Message": "Success",
-// 		"data":    getUsersResponse,
-// 	})
-
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Success",
+		"data":    usr,
+	})
+}
 
 func PostUser(c *gin.Context) {
 	reqUsers := models.User{}

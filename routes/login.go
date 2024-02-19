@@ -15,26 +15,28 @@ func RegisterUser(c *gin.Context) {
 	reqRegis := models.RequestLogin{}
 	c.BindJSON(&reqRegis)
 
-	Login := models.Login{
-		Username: reqRegis.LoginUsername,
-		Email:    reqRegis.LoginEmail,
+	loginReqPass := models.Login{
 		Password: reqRegis.LoginPassword,
-		Role:     reqRegis.LoginRole,
-		User: models.User{
-			Name:         reqRegis.UserName,
-			Address:      reqRegis.UserAddress,
-			Phone_number: reqRegis.UserPhoneNumber,
-		},
 	}
 
-	if err := c.ShouldBindJSON(&Login); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+	//hash user password
+	hash, err := loginReqPass.HashPassword(loginReqPass.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Bad request",
-			"error":   err.Error(),
+			"errpr":   err.Error(),
 		})
 
 		c.Abort()
 		return
+	}
+
+	//:: INITIALIZE DATA LOGIN
+	Login := models.Login{
+		Username: reqRegis.LoginUsername,
+		Email:    reqRegis.LoginEmail,
+		Password: hash,
+		Role:     reqRegis.LoginRole,
 	}
 
 	if errs := validate.Struct(&Login); errs != nil {
@@ -57,24 +59,30 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	//hash user password
-	err := Login.HashPassword(Login.Password)
-	if err != nil {
+	// insert login
+	insertLogin := config.DB.Create(&Login)
+	if insertLogin.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Bad request",
-			"errpr":   err.Error(),
+			"error":   insertLogin.Error.Error(),
 		})
 
 		c.Abort()
 		return
 	}
 
-	// insert user
-	insertUser := config.DB.Create(&Login)
-	if insertUser.Error != nil {
+	//:: INSERT INTO USERS
+	users := models.User{
+		Name:         reqRegis.UserName,
+		Address:      reqRegis.UserAddress,
+		Phone_number: reqRegis.UserPhoneNumber,
+		LoginID:      Login.ID,
+	}
+
+	if insertUser := config.DB.Create(&users); insertUser.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Bad request",
-			"error":   insertUser.Error.Error(),
+			"message": "Error Insert User",
+			"error":   insertLogin.Error.Error(),
 		})
 
 		c.Abort()

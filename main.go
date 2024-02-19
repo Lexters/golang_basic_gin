@@ -2,6 +2,7 @@ package main
 
 import (
 	"golang_project_2024/config"
+	"golang_project_2024/middlewares"
 	"golang_project_2024/routes"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,7 @@ func main() {
 			login.POST("/login", routes.GenerateToken)
 		}
 
-		books := route.Group("books") //.Use(middlewares.IsStaff())
+		books := route.Group("books").Use(middlewares.IsStaff())
 		{
 			books.GET("/", routes.GetBook)
 			books.GET("/:id", routes.GetBookByID)
@@ -36,29 +37,31 @@ func main() {
 			books.DELETE("/:id", routes.DeleteBook)
 		}
 
-		author := route.Group("author")
+		author := route.Group("author").Use(middlewares.IsStaff())
 		{
 			author.GET("/", routes.GetAuthor)
+			author.GET("/:id", routes.GetAuhtorByID)
 			author.POST("/", routes.PostAuthor)
 			author.PUT("/:id", routes.PutAuthor)
 			author.DELETE("/:id", routes.DeleteAuthor)
 		}
 
-		users := route.Group("users") //.Use(middlewares.IsAdmin())
+		user := route.Group("user").Use(middlewares.IsAdmin())
 		{
-			// 	users.GET("/", routes.GetUser)
-			// 	users.GET("/:id", routes.GetUserByID)
-			users.POST("/", routes.PostUser)
-			users.PUT("/:id", routes.PutUser)
-			users.DELETE("/:id", routes.DeleteUser)
+			user.GET("/", routes.GetUser)
+			user.GET("/:id", routes.GetUserByID)
+			user.POST("/", routes.PostUser)
+			user.PUT("/:id", routes.PutUser)
+			user.DELETE("/:id", routes.DeleteUser)
 		}
 
-		book_loan := route.Group("book_loan") //.Use(middlewares.IsStaff())
+		book_loan := route.Group("book_loan").Use(middlewares.IsStaff())
 		{
 			book_loan.GET("/book/:id", routes.GetBookLoanByBookID)
+			book_loan.GET("/", routes.GetBookLoan)
 			book_loan.POST("/", routes.PostBookLoanByUsersID)
 			book_loan.PUT("/:id", routes.UpdateBookLoanReturn)
-			book_loan.GET("/", routes.GetBookLoan)
+			book_loan.DELETE("/:id", routes.DeleteBookLoan)
 		}
 	}
 

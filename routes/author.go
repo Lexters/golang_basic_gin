@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
+	"gorm.io/gorm/clause"
 )
 
 func GetAuthor(c *gin.Context) {
@@ -40,6 +41,46 @@ func GetAuthor(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"Message": "Welcome Author",
+		"data":    getAuthorResponse,
+	})
+}
+
+func GetAuhtorByID(c *gin.Context) {
+	id := c.Param("id")
+
+	var author models.Author
+
+	data := config.DB.Preload(clause.Associations).First(&author, "id = ?", id)
+
+	if data.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "Data Not Found",
+			"message": "Data Not Found",
+		})
+
+		return
+	}
+
+	books := []models.BookResponse{}
+	for _, b := range author.Books {
+		bk := models.BookResponse{
+			ID:        b.ID,
+			Title:     b.Title,
+			Publisher: b.Publisher,
+			Years:     b.Years,
+		}
+
+		books = append(books, bk)
+	}
+
+	getAuthorResponse := models.GetAuthorResponse{
+		ID:    author.ID,
+		Name:  author.Name,
+		Books: books,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Success",
 		"data":    getAuthorResponse,
 	})
 }

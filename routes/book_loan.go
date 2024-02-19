@@ -143,3 +143,15 @@ func UpdateBookLoanReturn(c *gin.Context) {
 	})
 
 }
+
+func DeleteBookLoan(c *gin.Context) {
+	id := c.Param("id")
+
+	bookloan := models.UserBook{}
+
+	config.DB.Delete(&bookloan, "id = ?", id)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"Message": "Delete Successfully",
+	})
+}

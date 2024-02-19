@@ -37,16 +37,16 @@ type TokenRequest struct {
 	Password string `json:"password"`
 }
 
-func (login *Login) HashPassword(password string) error {
+func (login *Login) HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	login.Password = string(bytes)
 
-	return nil
+	return login.Password, nil
 }
 
 func (login *Login) CheckPassword(password string) error {
