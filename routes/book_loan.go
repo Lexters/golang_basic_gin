@@ -87,7 +87,16 @@ func GetBookLoanByBookID(c *gin.Context) {
 	Books := models.Book{}
 	usBook := []models.ResponseUserBook{}
 
-	config.DB.Preload(clause.Associations).Find(&Books, "id = ?", id)
+	data := config.DB.Preload(clause.Associations).Find(&Books, "id = ?", id)
+
+	if data.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "Data Not Found",
+			"message": "Data Not Found",
+		})
+
+		return
+	}
 
 	for _, book := range Books.User {
 
@@ -109,7 +118,7 @@ func GetBookLoanByBookID(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"Message": "Book_loan by Book ID!",
+		"Message": "Welcome Book_loan by Book ID!",
 		"data":    respBook,
 	})
 }
@@ -129,7 +138,6 @@ func UpdateBookLoanReturn(c *gin.Context) {
 
 		return
 	}
-	// c.BindJSON(&reqBLR)
 
 	timeNow := time.Now()
 

@@ -71,12 +71,21 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	//:: INSERT INTO USERS
+	// Insert into user
 	users := models.User{
 		Name:         reqRegis.UserName,
 		Address:      reqRegis.UserAddress,
 		Phone_number: reqRegis.UserPhoneNumber,
 		LoginID:      Login.ID,
+	}
+
+	if errs := validate.Struct(&users); errs != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Bad request",
+		})
+
+		c.Abort()
+		return
 	}
 
 	if insertUser := config.DB.Create(&users); insertUser.Error != nil {
@@ -150,5 +159,163 @@ func GenerateToken(c *gin.Context) {
 	// response
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
+	})
+}
+
+func PutPassword(c *gin.Context) {
+	// validate := validator.New()
+	id := c.Param("id")
+
+	data := config.DB.First(&models.Login{}, "id = ?", id)
+
+	if data.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "Data Not Found",
+			"message": "Data Not Found",
+		})
+
+		return
+	}
+
+	reqLog := models.RequestLogin{}
+	c.BindJSON(&reqLog)
+
+	loginReqPass := models.Login{
+		Password: reqLog.LoginPassword,
+	}
+
+	//hash user password
+	hash, err := loginReqPass.HashPassword(loginReqPass.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Bad request",
+			"errpr":   err.Error(),
+		})
+
+		c.Abort()
+		return
+	}
+
+	log := models.Login{
+		Password: hash,
+	}
+
+	// if errs := validate.Struct(&log); errs != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": "Bad request",
+	// 	})
+
+	// 	c.Abort()
+	// 	return
+	// }
+
+	config.DB.Model(&models.Login{}).Where("id = ?", id).Updates(&log)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"Message": "Update Successfully",
+		"data":    log,
+	})
+}
+
+func PutEmail(c *gin.Context) {
+	// validate := validator.New()
+	id := c.Param("id")
+
+	data := config.DB.First(&models.Login{}, "id = ?", id)
+
+	if data.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "Data Not Found",
+			"message": "Data Not Found",
+		})
+
+		return
+	}
+
+	reqLog := models.RequestLogin{}
+	c.BindJSON(&reqLog)
+
+	log := models.Login{
+		Email: reqLog.LoginEmail,
+	}
+
+	// if errs := validate.Struct(&reqLog); errs != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": "Bad request",
+	// 	})
+
+	// 	c.Abort()
+	// 	return
+	// }
+
+	// check email
+	checkEmail := config.DB.Where("email = ?", log.Email).First(&log)
+	if checkEmail.Error == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Email Already Exists",
+		})
+
+		c.Abort()
+		return
+	}
+
+	config.DB.Model(&models.Login{}).Where("id = ?", id).Updates(&log)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"Message": "Update Successfully",
+		"data":    log,
+	})
+}
+
+func PutUsername(c *gin.Context) {
+	// validate := validator.New()
+	id := c.Param("id")
+
+	data := config.DB.First(&models.Login{}, "id = ?", id)
+
+	if data.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "Data Not Found",
+			"message": "Data Not Found",
+		})
+
+		return
+	}
+
+	reqLog := models.RequestLogin{}
+	c.BindJSON(&reqLog)
+
+	log := models.Login{
+		Username: reqLog.LoginUsername,
+	}
+
+	// if errs := validate.Struct(&reqLog); errs != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": "Bad request",
+	// 	})
+
+	// 	c.Abort()
+	// 	return
+	// }
+
+	config.DB.Model(&models.Login{}).Where("id = ?", id).Updates(&log)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"Message": "Update Successfully",
+		"data":    log,
+	})
+}
+
+func DeleteLogin(c *gin.Context) {
+	id := c.Param("id")
+
+	login := models.Login{}
+	users := models.User{}
+
+	config.DB.Delete(&users, "id = ?", id)
+	config.DB.Delete(&login, "id = ?", id)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"Message": "Delete Successfully",
 	})
 }

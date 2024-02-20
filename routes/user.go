@@ -62,41 +62,16 @@ func GetUserByID(c *gin.Context) {
 	})
 }
 
-func PostUser(c *gin.Context) {
-	reqUsers := models.User{}
-	c.BindJSON(&reqUsers)
-
-	config.DB.Create(&reqUsers)
-
-	c.JSON(200, gin.H{
-		"Message": "Insert Successfully!",
-		"data":    reqUsers,
-	})
-}
-
 func PutUser(c *gin.Context) {
 	id := c.Param("id")
-	var users models.User
 
 	var reqUsers models.User
 	c.BindJSON(&reqUsers)
 
-	config.DB.Model(&users).Where("id = ?", id).Updates(reqUsers)
+	config.DB.Model(&models.User{}).Where("id = ?", id).Updates(reqUsers)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"Message": "Update Successfully!",
 		"data":    reqUsers,
-	})
-}
-
-func DeleteUser(c *gin.Context) {
-	id := c.Param("id")
-
-	users := models.User{}
-
-	config.DB.Delete(&users, "id = ?", id)
-
-	c.JSON(http.StatusCreated, gin.H{
-		"Message": "Delete Successfully",
 	})
 }

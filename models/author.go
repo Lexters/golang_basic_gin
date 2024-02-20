@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Author struct {
 	gorm.Model
-	Name  string `json:"name"`
+	Name  string `json:"name" validate:"required"`
 	Books []Book `json:"book"`
 }
 

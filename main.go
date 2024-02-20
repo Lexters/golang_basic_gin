@@ -25,7 +25,11 @@ func main() {
 		login := route.Group("/login")
 		{
 			login.POST("/register", routes.RegisterUser)
-			login.POST("/login", routes.GenerateToken)
+			login.POST("/login", routes.GenerateToken).Use(middlewares.IsAdmin())
+			login.PUT("/password/:id", routes.PutPassword)
+			login.PUT("/email/:id", routes.PutEmail)
+			login.PUT("/username/:id", routes.PutUsername)
+			login.DELETE("/:id", routes.DeleteLogin)
 		}
 
 		books := route.Group("books").Use(middlewares.IsStaff())
@@ -50,9 +54,7 @@ func main() {
 		{
 			user.GET("/", routes.GetUser)
 			user.GET("/:id", routes.GetUserByID)
-			user.POST("/", routes.PostUser)
 			user.PUT("/:id", routes.PutUser)
-			user.DELETE("/:id", routes.DeleteUser)
 		}
 
 		book_loan := route.Group("book_loan").Use(middlewares.IsStaff())

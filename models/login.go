@@ -15,9 +15,9 @@ type Login struct {
 }
 
 type RequestLogin struct {
-	LoginUsername   string `json:"login_username"`
-	LoginEmail      string `json:"login_email"`
-	LoginPassword   string `json:"login_password"`
+	LoginUsername   string `json:"login_username" validate:"required"`
+	LoginEmail      string `json:"login_email" validate:"required"`
+	LoginPassword   string `json:"login_password" validate:"required"`
 	LoginRole       uint32 `json:"login_role"`
 	UserName        string `json:"user_name"`
 	UserPhoneNumber string `json:"user_phonenumber"`

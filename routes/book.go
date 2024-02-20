@@ -72,8 +72,19 @@ func GetBookByID(c *gin.Context) {
 }
 
 func PostBook(c *gin.Context) {
+	// validate := validator.New()
 	reqBook := models.Book{}
 	c.BindJSON(&reqBook)
+
+	// errs := validate.Struct(&reqBook)
+	// if errs != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": "Bad request",
+	// 	})
+
+	// 	c.Abort()
+	// 	return
+	// }
 
 	config.DB.Create(&reqBook)
 

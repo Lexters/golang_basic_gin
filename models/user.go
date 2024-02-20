@@ -12,6 +12,9 @@ type User struct {
 }
 
 type UserResponse struct {
+	Name         string `json:"name"`
+	Address      string `json:"address"`
+	Phone_number string `json:"phone_number"`
 }
 
 type GetUserResponse struct {
